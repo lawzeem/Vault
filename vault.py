@@ -123,9 +123,9 @@ def checkAccountExist(username, service):
 if __name__ == "__main__":
     ascii_banner = pyfiglet.figlet_format("Vault")
     welcome_msg = "Welcome to Vault, this service encrypts user accounts and securely stores them.\nTo continue, please enter your username and password\n"
-    help_msg = "To Add an account, enter add.\nTo decrypt an account, enter decrypt.\nTo view all accounts, enter all.\nTo exit, enter exit.\n"
+    help_msg = "add\tAdd an account\ndecrypt\tDecrypt an account\nall\tView all accounts\nexit\tExit vault\n"
     print(ascii_banner)
-    print(welcome_msg)
+    # print(welcome_msg)
     master_username = ""
     while(len(master_username) != 16):
         master_username = input("Master Username: ")
@@ -139,21 +139,21 @@ if __name__ == "__main__":
             print("ERROR! Master Password must be exactly 16 characters!")
 
     # master_password = getpass("Master Password: ")
-    print('\n')
+    # print('\n')
     if(checkUserExist):
         print("Accounts under", master_username)
         all(master_username)
     else:
         print("No record found for", master_username, ". A new record will be created.")
-        print('\n')
+    print('\n')
 
     command = ""
 
     while(command != "exit"):
-        print("\n")
-        print(help_msg)
-        command = input("Enter command: ")
-        print("\n")
+        # print("\n")
+        # print(help_msg)
+        command = input("vault> ")
+        # print("\n")
         if(command == "add"):
             added = False
             while(not added):
@@ -176,5 +176,7 @@ if __name__ == "__main__":
             retrieve(service, master_username, master_password)
         if(command == "all"):
             all(master_username)
+        if(command == "help"):
+            print(help_msg)
 
 
