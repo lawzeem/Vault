@@ -58,7 +58,7 @@ def decryptService(account, masterusername, masterpass):
     except:
         print("Error Decrypting! Incorrect Username or Password given.")
         sys.exit()
-        
+
 # Save an encrypted account under the user
 def save(username, service, account):
     savedir = os.getcwd() + '\\data\\' + username + '.json'
@@ -84,6 +84,11 @@ def all(username):
     for key, value in accounts.items():
         print(key)
 
+# Returns the number of accounts under the user
+def count(usesrname):
+    accounts = loadUser(username)
+    return len(accounts)
+
 def getConfig():
     config = {}
     exists = False
@@ -96,6 +101,21 @@ def getConfig():
         file = open(filename, 'wb+')
     file.close()
     return exists, config
+
+def createConfig():
+    vault_user = vault_pass1 = vault_pass2 = ""
+    while(len(vault_user)!=16):
+        vault_user = input("Vault Username:")
+        if(len(vault_user)!=16):
+            print("Username must be exactly 16 characters!")
+    while(len(vault_pass1)!=16):
+        vault_pass1 = input("Vault Password:")
+        if(len(vault_pass1)!=16):
+            print("Password must be exactly 16 characters!")
+    while(vault_pass2!=vault_pass1):
+        vault_pass2 = input("Vault Password (again):")
+        if(vault_pass2!=vault_pass1):
+            print("Passwords must match!")
 
 # Authenticates the user
 def authenticate(user, password):
@@ -146,7 +166,7 @@ if __name__ == "__main__":
         all(master_username)
     else:
         print("No record found for", master_username, ". A new record will be created.")
-    print('\n')
+    # print('\n')
 
     command = ""
 
