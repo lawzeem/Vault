@@ -56,8 +56,9 @@ def decryptService(account, masterusername, masterpass):
         print("Password: ", password.decode("utf8"))
         print("\n")
     except:
-        print("Incorrect Password")
+        print("Error Decrypting! Incorrect Username or Password given.")
         sys.exit()
+        
 # Save an encrypted account under the user
 def save(username, service, account):
     savedir = os.getcwd() + '\\data\\' + username + '.json'
@@ -178,5 +179,9 @@ if __name__ == "__main__":
             all(master_username)
         if(command == "help"):
             print(help_msg)
+        if(command == "exit"):
+            break
+        else:
+            print("Command not recognized, use help for all available commands.")
 
 
