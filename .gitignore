@@ -1,6 +1,13 @@
 # Save files
 data/
 
+# Config files
+config.json
+
+# Testing Files
+dummy.py
+vault_v2.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

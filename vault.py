@@ -89,6 +89,7 @@ def count(usesrname):
     accounts = loadUser(username)
     return len(accounts)
 
+# This function gets the config
 def getConfig():
     config = {}
     exists = False
@@ -102,30 +103,42 @@ def getConfig():
     file.close()
     return exists, config
 
+# This function creates a config file
 def createConfig():
+    config = {}
+    filename = "config.json"
     vault_user = vault_pass1 = vault_pass2 = ""
     while(len(vault_user)!=16):
         vault_user = input("Vault Username:")
         if(len(vault_user)!=16):
             print("Username must be exactly 16 characters!")
     while(len(vault_pass1)!=16):
-        vault_pass1 = input("Vault Password:")
+        vault_pass1 = getpass("Vault Password:")
         if(len(vault_pass1)!=16):
             print("Password must be exactly 16 characters!")
     while(vault_pass2!=vault_pass1):
-        vault_pass2 = input("Vault Password (again):")
+        vault_pass2 = getpass("Vault Password (again):")
         if(vault_pass2!=vault_pass1):
             print("Passwords must match!")
+    config["username"] = vault_user
+    bytePass = vault_pass1.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(bytePass, salt)
+    hashed = hashed.decode('ascii')
+    config["password"] = hashed
+    with open(filename, 'w+') as file:
+        json.dump(config, file)
+    return vault_user, vault_pass1
 
 # Authenticates the user
-def authenticate(user, password):
-    savedPass = ""
-    if bcrypt.checkpw(password.encode('utf-8'), savedPass):
-        return True
-    else:
-        return False
-    pass
+def authenticate(userconfig, password):
+    savedPass = userconfig["password"].encode('utf8')
+    password = password
+    while(not bcrypt.checkpw(password.encode('utf-8'), savedPass)):
+        password = getUserDet()
+    return True
 
+# Checks if the user exists
 def checkUserExist(username):
     savedir = os.getcwd() + '\\data\\' + username + '.json'
     if(not os.path.isdir(savedir)):
@@ -141,67 +154,68 @@ def checkAccountExist(username, service):
     else:
         return False
 
-if __name__ == "__main__":
-    ascii_banner = pyfiglet.figlet_format("Vault")
-    welcome_msg = "Welcome to Vault, this service encrypts user accounts and securely stores them.\nTo continue, please enter your username and password\n"
-    help_msg = "add\tAdd an account\ndecrypt\tDecrypt an account\nall\tView all accounts\nexit\tExit vault\n"
-    print(ascii_banner)
-    # print(welcome_msg)
-    master_username = ""
-    while(len(master_username) != 16):
-        master_username = input("Master Username: ")
-        if(len(master_username)!=16):
-            print("ERROR! Master Username must be exactly 16 characters!")
-
+# This function gets the vault username and password from the terminal and returns them
+def getUserDet():
     master_password = ""
     while(len(master_password) != 16):
-        master_password = getpass("Master Password: ")
+        master_password = getpass("Vault Password: ")
         if(len(master_password)!=16):
-            print("ERROR! Master Password must be exactly 16 characters!")
+            print("ERROR! Vault Password must be exactly 16 characters!")
 
-    # master_password = getpass("Master Password: ")
-    # print('\n')
-    if(checkUserExist):
-        print("Accounts under", master_username)
-        all(master_username)
-    else:
-        print("No record found for", master_username, ". A new record will be created.")
-    # print('\n')
+    return master_password
 
+# This is the main function that asks for inputs and gives output
+def runCommand(username, password):
     command = ""
-
     while(command != "exit"):
-        # print("\n")
-        # print(help_msg)
         command = input("vault> ")
-        # print("\n")
         if(command == "add"):
             added = False
             while(not added):
                 service = input("Enter the account name: ")
-                if(checkAccountExist(master_username, service)):
+                if(checkAccountExist(username, service)):
                     confirmation = input("An account already exists under that name. To overwrite the existing account enter Y, anything else otherwise: ")
                     if(confirmation == "Y"):
-                        username = input("Enter username: ")
-                        password = input("Enter password: ")
-                        encryptService(service, username, password, master_username, master_password)
+                        acc_username = input("Username: ")
+                        acc_password = input("Password: ")
+                        encryptService(service, acc_username, acc_password, username, password)
                         added = True
                 else:
-                    username = input("Enter username: ")
-                    password = input("Enter password: ")
-                    encryptService(service, username, password, master_username, master_password)
+                    acc_username = input("Username: ")
+                    acc_password = input("Password: ")
+                    encryptService(service, acc_username, acc_password, username, password)
                     added = True
 
-        if(command == "decrypt"):
+        elif(command == "decrypt"):
             service = input("Enter the account you want to decrypt: ")
-            retrieve(service, master_username, master_password)
-        if(command == "all"):
-            all(master_username)
-        if(command == "help"):
+            retrieve(service, username, password)
+        elif(command == "all"):
+            all(username)
+        elif(command == "help"):
             print(help_msg)
-        if(command == "exit"):
+        elif(command == "exit"):
             break
         else:
             print("Command not recognized, use help for all available commands.")
 
+# Main driver
+if __name__ == "__main__":
+    # Opener
+    ascii_banner = pyfiglet.figlet_format("Vault")
+    welcome_msg = "Welcome to Vault, this service encrypts user accounts and securely stores them.\nTo continue, please enter your username and password\n"
+    help_msg = "add\tAdd an account\ndecrypt\tDecrypt an account\nall\tView all accounts\nexit\tExit vault"
+    print(ascii_banner)
+    # Checking if a config exists the directory and gets it
+    config_exist, config_file = getConfig()
 
+    if(config_exist):
+        print("Configuration found, enter password to continue")
+        vault_pass = getUserDet()
+        vault_user = config_file["username"]
+        authenticate(config_file, vault_pass)
+        runCommand(vault_user, vault_pass)
+    else:
+        # Since config does not exist, we make one and then run commands
+        print("No configuration found, create one to continue")
+        vault_user, vault_pass = createConfig()
+        runCommand(vault_user, vault_pass)
