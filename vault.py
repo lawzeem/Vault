@@ -39,7 +39,6 @@ def encryptService(service, username, password, masterusername, masterpass):
     "username" : encoded_user.decode('ascii'),
     "password" : encoded_pass.decode('ascii')
     }
-
     save(masterusername, service, account)
     return account
 
@@ -164,31 +163,87 @@ def getUserDet():
 
     return master_password
 
+# Delete a service
+def delete(service, user):
+    details = loadUser(user)
+    if(service in details):
+        details.pop(service)
+        savedir = os.getcwd() + '\\data\\' + user + '.json'
+        with open(savedir, 'w') as file:
+            json.dump(details, file)
+    else:
+        print("Error! No such service by that name.")
+
 # This is the main function that asks for inputs and gives output
 def runCommand(username, password):
     command = ""
     while(command != "exit"):
         command = input("vault> ")
+        commands = command.split()
+        if(len(commands) == 2):
+            command = commands[0]
+        elif(len(commands) > 2):
+            print("Error! Too many arguments")
+            break
+        command = commands[0].lower()
+        # Create
         if(command == "add"):
             added = False
             while(not added):
-                service = input("Enter the account name: ")
+                if(len(commands) > 1):
+                    service = commands[1]
+                else:
+                    service = input("Enter the account name: ")
                 if(checkAccountExist(username, service)):
-                    confirmation = input("An account already exists under that name. To overwrite the existing account enter Y, anything else otherwise: ")
-                    if(confirmation == "Y"):
+                    confirmation = input("An account already exists under that name. To overwrite the existing account enter Y: ")
+                    if(confirmation.lower() == "y"):
                         acc_username = input("Username: ")
                         acc_password = input("Password: ")
                         encryptService(service, acc_username, acc_password, username, password)
                         added = True
+                    else:
+                        break
                 else:
                     acc_username = input("Username: ")
                     acc_password = input("Password: ")
                     encryptService(service, acc_username, acc_password, username, password)
                     added = True
-
+        # Read
         elif(command == "decrypt"):
-            service = input("Enter the account you want to decrypt: ")
+            if(len(commands) > 1):
+                service = commands[1]
+            else:
+                service = input("Enter the account you want to decrypt: ")
             retrieve(service, username, password)
+        # Update
+        elif(command == "edit"):
+            updated = False
+            while(not updated):
+                if(len(commands) > 1):
+                    service = commands[1]
+                else:
+                    service = input("Enter the account name: ")
+                if(not checkAccountExist(username, service)):
+                    confirmation = input("No account under that name exists! To create a new account enter Y: ")
+                    if(confirmation.lower() == "y"):
+                        acc_username = input("Username: ")
+                        acc_password = input("Password: ")
+                        encryptService(service, acc_username, acc_password, username, password)
+                        updated = True
+                    else:
+                        break
+                else:
+                    acc_username = input("Username: ")
+                    acc_password = input("Password: ")
+                    encryptService(service, acc_username, acc_password, username, password)
+                    updated = True
+        # Delete
+        elif(command == "delete"):
+            if(len(commands) > 1):
+                service = commands[1]
+            else:
+                service = input("Enter the account you want to delete: ")
+            delete(service, username)
         elif(command == "all"):
             all(username)
         elif(command == "help"):
