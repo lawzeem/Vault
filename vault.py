@@ -26,7 +26,13 @@ def loadUser(username):
 def encryptService(service, username, password, masterusername, masterpass):
     if(len(masterpass) != 16 or len(masterusername) != 16):
         print("Master Username and Password must be exactly 16 characters!")
-        return
+        return False
+    if(len(username) == 0):
+        print("Error! Username cannot be blank.")
+        return False
+    if(len(password) == 0):
+        print("Error! Password cannot be blank.")
+        return False
     details = loadUser(masterusername)
     aes_obj = AES.new(masterusername.encode("utf8"), AES.MODE_CFB, masterpass.encode("utf8"))
     encrypt_user = aes_obj.encrypt(username.encode("utf8"))
@@ -40,7 +46,7 @@ def encryptService(service, username, password, masterusername, masterpass):
     "password" : encoded_pass.decode('ascii')
     }
     save(masterusername, service, account)
-    return account
+    return True
 
 # Decrypt the username and password for an account using master credentials
 def decryptService(account, masterusername, masterpass):
@@ -199,15 +205,15 @@ def runCommand(username, password):
                     if(confirmation.lower() == "y"):
                         acc_username = input("Username: ")
                         acc_password = input("Password: ")
-                        encryptService(service, acc_username, acc_password, username, password)
-                        added = True
+                        added = encryptService(service, acc_username, acc_password, username, password)
+                        # added = True
                     else:
                         break
                 else:
                     acc_username = input("Username: ")
                     acc_password = input("Password: ")
-                    encryptService(service, acc_username, acc_password, username, password)
-                    added = True
+                    added = encryptService(service, acc_username, acc_password, username, password)
+                    # added = True
         # Read
         elif(command == "decrypt"):
             if(len(commands) > 1):
@@ -228,15 +234,15 @@ def runCommand(username, password):
                     if(confirmation.lower() == "y"):
                         acc_username = input("Username: ")
                         acc_password = input("Password: ")
-                        encryptService(service, acc_username, acc_password, username, password)
-                        updated = True
+                        updated = encryptService(service, acc_username, acc_password, username, password)
+                        # updated = True
                     else:
                         break
                 else:
                     acc_username = input("Username: ")
                     acc_password = input("Password: ")
-                    encryptService(service, acc_username, acc_password, username, password)
-                    updated = True
+                    updated = encryptService(service, acc_username, acc_password, username, password)
+                    # updated = True
         # Delete
         elif(command == "delete"):
             if(len(commands) > 1):
@@ -258,7 +264,7 @@ if __name__ == "__main__":
     # Opener
     ascii_banner = pyfiglet.figlet_format("Vault")
     welcome_msg = "Welcome to Vault, this service encrypts user accounts and securely stores them.\nTo continue, please enter your username and password\n"
-    help_msg = "add\tAdd an account\ndecrypt\tDecrypt an account\nall\tView all accounts\nexit\tExit vault"
+    help_msg = "add\t\t\tAdd an account\nadd <account>\t\tAdd the account in the argument\ndecrypt\t\t\tDecrypt an account\ndecrypt <account>\tDecrypt the account in the argument\nedit\t\t\tUpdate an account\nedit <account>\t\tUpdate the account in the argument\ndelete\t\t\tDelete an account\ndelete <account>\tDelete the account in the argument\nall\t\t\tView all accounts\nexit\t\t\tExit vault"
     print(ascii_banner)
     # Checking if a config exists the directory and gets it
     config_exist, config_file = getConfig()
