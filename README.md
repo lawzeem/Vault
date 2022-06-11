@@ -16,5 +16,7 @@ py Vault.py
 ```
 The application will walk you through the creation of a Master account.
 
-Once an account has been created, you will be able to add all your passwords.
+![image](https://user-images.githubusercontent.com/22754602/173173469-2eb42417-7133-4d7f-90ac-1080853724cb.png)
+
+Once an account has been created, you will be able to add, view and edit all your passwords.
 
