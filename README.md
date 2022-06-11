@@ -5,7 +5,7 @@ The application requires Python and Pip.
 To install Python, visit: https://www.python.org/downloads/
 To install Pip, visit: https://pip.pypa.io/en/stable/installation/
 
-The application also requires the installation of the libraries in the Requirements.txt file.
+The application also requires the installation of the libraries in the requirements.txt file.
 To run the installer, open the script directory and use the following command:
 ```
 pip install requirements.txt
